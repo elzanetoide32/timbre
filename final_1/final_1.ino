@@ -26,7 +26,9 @@ byte pinesColumnas[columnas] = {5, 4, 3, 2};   // Pines conectados a las columna
 Keypad keypad = Keypad(makeKeymap(teclas), pinesFilas, pinesColumnas, filas, columnas);
 
 int alarma_0[3], alarma_1[3],alarma_2[3],alarma_3[3],alarma_4[3],alarma_5[3],alarma_6[3],alarma_7[3],alarma_8[3],alarma_9[3];////hasta 9 alarmas se puede configurar////
-int a=0;
+int alarm_Horas[]={alarma_0[0],alarma_1[0],alarma_2[0],alarma_3[0],alarma_4[0],alarma_5[0],alarma_6[0],alarma_7[0],alarma_8[0],alarma_9[0]};
+int alarm_Min[]={alarma_0[1],alarma_1[1],alarma_2[1],alarma_3[1],alarma_4[1],alarma_5[1],alarma_6[1],alarma_7[1],alarma_8[1],alarma_9[1]};
+
 #define Led 13
 #define Boton A2
 //////variables para el temporizador//////
@@ -55,7 +57,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   // This allows for the update of variables for time or accessing the individual elements.                //|
-  
+    
     myRTC.updateTime();
     lcd.setCursor(0,0);
     lcd.print(myRTC.dayofmonth);
@@ -69,10 +71,19 @@ void loop() {
     lcd.print(myRTC.minutes);
     lcd.print(":");
     lcd.print(myRTC.seconds);
-    lcd.print(" ");
+    lcd.print(" ");    
+    while(i<9){
+      lcd.setCursor(0,1);
+      lcd.print(alarm_Horas[i]);
+      lcd.print(":");
+      lcd.print(alarm_Min[i]);
+      if(myRTC.hours==alarm_Horas[i]&&myRTC.minutes==alarm_Min[i]){
+        i+=1; 
+      }
+    }
     delay(300);
-    lcd.clear();
-      
+    lcd.clear();   
+   
     if(Boton==0){
       digitalWrite(Led,HIGH);
     }
@@ -504,6 +515,9 @@ void loop() {
     }
     
 }
+
+
+////////funciones de la alarma////////////
 void borrarAlarma(int Alarma[2]){
   Alarma[0]=0;
   Alarma[1]=0;
