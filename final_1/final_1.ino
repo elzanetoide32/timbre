@@ -25,10 +25,7 @@ byte pinesColumnas[columnas] = {5, 4, 3, 2};   // Pines conectados a las columna
 
 Keypad keypad = Keypad(makeKeymap(teclas), pinesFilas, pinesColumnas, filas, columnas);
 
-int alarma_0[3], alarma_1[3],alarma_2[3],alarma_3[3],alarma_4[3],alarma_5[3],alarma_6[3],alarma_7[3],alarma_8[3],alarma_9[3];////hasta 9 alarmas se puede configurar////
-int alarm_Horas[]={alarma_0[0],alarma_1[0],alarma_2[0],alarma_3[0],alarma_4[0],alarma_5[0],alarma_6[0],alarma_7[0],alarma_8[0],alarma_9[0]};
-int alarm_Min[]={alarma_0[1],alarma_1[1],alarma_2[1],alarma_3[1],alarma_4[1],alarma_5[1],alarma_6[1],alarma_7[1],alarma_8[1],alarma_9[1]};
-
+int Alarma[9][3];////matris de alarmas
 #define Led 13
 #define Boton A2
 //////variables para el temporizador//////
@@ -71,35 +68,59 @@ void loop() {
     lcd.print(myRTC.minutes);
     lcd.print(":");
     lcd.print(myRTC.seconds);
-    lcd.print(" ");    
-    while(i<9){
-      lcd.setCursor(0,1);
-      lcd.print(alarm_Horas[i]);
-      lcd.print(":");
-      lcd.print(alarm_Min[i]);
-      if(myRTC.hours==alarm_Horas[i]&&myRTC.minutes==alarm_Min[i]){
-        i+=1; 
-      }
-    }
-    delay(300);
-    lcd.clear();   
+    lcd.print(" "); 
    
     if(Boton==0){
       digitalWrite(Led,HIGH);
     }
     else if(myRTC.hours==0&&myRTC.minutes==0&&myRTC.seconds==0){
       digitalWrite(Led,LOW);
-    }
-    else if (myRTC.hours == alarma_0[0] && myRTC.minutes == alarma_0[1]&&myRTC.seconds==alarma_0[2]||myRTC.hours == alarma_1[0] && myRTC.minutes == alarma_1[1]&&myRTC.seconds==alarma_1[2]||myRTC.hours == alarma_2[0] && myRTC.minutes == alarma_2[1]&&myRTC.seconds==alarma_2[2]||myRTC.hours == alarma_3[0] && myRTC.minutes == alarma_3[1]&&myRTC.seconds==alarma_3[2]||myRTC.hours == alarma_4[0] && myRTC.minutes == alarma_4[1]&&myRTC.seconds==alarma_4[2]||myRTC.hours == alarma_5[0] && myRTC.minutes == alarma_5[1]&&myRTC.seconds==alarma_5[2]||myRTC.hours == alarma_6[0] && myRTC.minutes == alarma_6[1]&&myRTC.seconds==alarma_6[2]||myRTC.hours == alarma_7[0] && myRTC.minutes == alarma_7[1]&&myRTC.seconds==alarma_7[2]||myRTC.hours == alarma_8[0] && myRTC.minutes == alarma_8[1]&&myRTC.seconds==alarma_8[2]||myRTC.hours == alarma_9[0] && myRTC.minutes == alarma_9[1]&&myRTC.seconds==alarma_9[2]) {
-      digitalWrite(Led, HIGH);  // Encender el LED cuando se alcance la hora de la alarma
-      delay(5000);
-      digitalWrite(Led,LOW);
-      
-      
-    }
+    }    
     else{
         digitalWrite(Led,LOW);
     }
+    for(int i=0;i<9;i++){
+      if(myRTC.hours==0&&myRTC.minutes==0&&myRTC.seconds==0){
+      digitalWrite(Led,LOW);
+      }
+      else if(myRTC.hours==Alarma[i][0]&&myRTC.minutes==Alarma[i][1]&&myRTC.seconds==Alarma[i][2]){
+        digitalWrite(Led, HIGH);  // Encender el LED cuando se alcance la hora de la alarma
+        delay(5000);
+        digitalWrite(Led,LOW);  
+      }
+    }
+
+    // Variables para almacenar la próxima alarma
+  int proximaAlarmaHora = -1;
+  int proximaAlarmaMinuto = -1;
+  int proximaAlarmaSecond = -1;
+  // Comparar la hora con los horarios en el array
+  for (int i = 0; i < 9; i++) {
+    if (myRTC.hours < Alarma[i][0] || (myRTC.hours == Alarma[i][0] && myRTC.hours < Alarma[i][1])) {
+      proximaAlarmaHora = Alarma[i][0];
+      proximaAlarmaMinuto = Alarma[i][1];
+      proximaAlarmaSecond=Alarma[i][2];
+      break; // Romper el bucle una vez que se encuentre la próxima alarma
+    }
+  }
+
+  // Mostrar la próxima alarma en el LCD
+  lcd.setCursor(0, 1);
+  if (proximaAlarmaHora != -1 && proximaAlarmaMinuto != -1) {
+    lcd.print(proximaAlarmaHora);
+    lcd.print(":");
+    if (proximaAlarmaMinuto < 10) {
+      lcd.print("0"); // Asegurarse de que los minutos sean mostrados con 2 dígitos
+    }
+    lcd.print(proximaAlarmaMinuto);
+    lcd.print(":");
+    if (proximaAlarmaSecond < 10) {
+      lcd.print("0"); // Asegurarse de que los minutos sean mostrados con 2 dígitos
+    }
+    lcd.print(proximaAlarmaSecond);
+  } else {
+    lcd.print("No hay alarmas");
+  }
     
     char tecla = keypad.getKey();    
     if(tecla=='*'){
@@ -123,6 +144,8 @@ void loop() {
                                 char tecla = keypad.getKey();                               
                                 lcd.setCursor(0,0);
                                 lcd.print("Ingrese la posicion");                             
+                                lcd.scrollDisplayLeft();
+                                delay(500);
                                 switch(tecla){
                                   case '0':
                                   while(1){
@@ -131,7 +154,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_0);
+                                      ingresarHoraAlarma(0);
                                       break;
                                     }
                                     delay(100);
@@ -144,7 +167,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_1);                                 
+                                      ingresarHoraAlarma(1);                                 
                                       break;
                                     }
                                     delay(100);
@@ -157,7 +180,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_2);                                 
+                                      ingresarHoraAlarma(2);                                 
                                       break;
                                     }
                                     delay(100);
@@ -170,7 +193,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_3);                                 
+                                      ingresarHoraAlarma(3);                                 
                                       break;
                                     }
                                     delay(100);
@@ -183,7 +206,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_4);                                 
+                                      ingresarHoraAlarma(4);                                 
                                       break;
                                     }
                                     delay(100);
@@ -196,7 +219,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_5);                                 
+                                      ingresarHoraAlarma(5);                                 
                                       break;
                                     }
                                     delay(100);
@@ -209,7 +232,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_6);                                 
+                                      ingresarHoraAlarma(6);                                 
                                       break;
                                     }
                                     delay(100);
@@ -222,7 +245,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_1);                                 
+                                      ingresarHoraAlarma(7);                                 
                                       break;
                                     }
                                     delay(100);
@@ -235,7 +258,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_8);                                 
+                                      ingresarHoraAlarma(8);                                 
                                       break;
                                     }
                                     delay(100);
@@ -248,7 +271,7 @@ void loop() {
                                     lcd.setCursor(0,0);
                                     lcd.print("Confirme");
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(alarma_9);                                 
+                                      ingresarHoraAlarma(9);                                 
                                       break;
                                     }
                                     delay(100);
@@ -265,7 +288,9 @@ void loop() {
                 char tecla = keypad.getKey();
                 lcd.clear();
                 lcd.setCursor(0,0);
-                lcd.print("Ingrese la posicion");
+                lcd.print("Ingrese la posicion");                             
+                lcd.scrollDisplayLeft();
+                delay(500);
                 switch(tecla){
                   case '0':
                   while(1){
@@ -276,7 +301,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_0);
+                        borrarAlarma(0);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -297,7 +322,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_1);
+                        borrarAlarma(1);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -318,7 +343,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_2);
+                        borrarAlarma(2);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -339,7 +364,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_3);
+                        borrarAlarma(3);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -360,7 +385,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_4);
+                        borrarAlarma(4);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -381,7 +406,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_5);
+                        borrarAlarma(5);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -402,7 +427,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_6);
+                        borrarAlarma(6);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -423,7 +448,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_7);
+                        borrarAlarma(7);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -444,7 +469,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_8);
+                        borrarAlarma(8);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -465,7 +490,7 @@ void loop() {
                     if (tecla=='*'){
                       H++;
                       if(H==2){
-                        borrarAlarma(alarma_9);
+                        borrarAlarma(9);
                         lcd.setCursor(0,1);
                         lcd.print("lito");
                         delay(1000);
@@ -518,14 +543,14 @@ void loop() {
 
 
 ////////funciones de la alarma////////////
-void borrarAlarma(int Alarma[2]){
-  Alarma[0]=0;
-  Alarma[1]=0;
-  Serial.print("Alarma[0]=0");
-  Serial.print("Alarma[1]=0");
+void borrarAlarma(int i){
+  for(int a=0;a<3;a++){
+    Alarma[i][a]=0;
+  }
+  
 }
 
-void ingresarHoraAlarma(int Alarma[3]) {
+void ingresarHoraAlarma(int i) {
   int valor = 0;
   int indice = 0;
   lcd.clear();
@@ -540,7 +565,7 @@ void ingresarHoraAlarma(int Alarma[3]) {
     } 
     else if (tecla == '#') {
       lcd.clear();
-      Alarma[indice] = valor;
+      Alarma[i][indice] = valor;
       Serial.println();
       Serial.print("Alarma[");
       Serial.print(indice);
