@@ -27,7 +27,7 @@ Keypad keypad = Keypad(makeKeymap(teclas), pinesFilas, pinesColumnas, filas, col
 
 int Alarma[9][3];////matris de alarmas
 #define Led 13
-#define Boton A2
+#define Boton A0
 //////variables para el temporizador//////
 int horas = 0;
 int minutos = 0;
@@ -105,7 +105,8 @@ void loop() {
   }
 
   // Mostrar la próxima alarma en el LCD
-  lcd.setCursor(0, 1);
+ 
+  lcd.setCursor(0, 1);  
   if (proximaAlarmaHora != -1 && proximaAlarmaMinuto != -1) {
     lcd.print(proximaAlarmaHora);
     lcd.print(":");
@@ -119,7 +120,7 @@ void loop() {
     }
     lcd.print(proximaAlarmaSecond);
   } else {
-    lcd.print("No hay alarmas");
+    lcd.print("No hay alarmas");    
   }
     
     char tecla = keypad.getKey();    
@@ -150,11 +151,15 @@ void loop() {
                                   case '0':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 0, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
                                       ingresarHoraAlarma(0);
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito");
                                       break;
                                     }
                                     delay(100);
@@ -163,11 +168,17 @@ void loop() {
                                   case '1':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 1, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                     delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(1);                                 
+                                      ingresarHoraAlarma(1); 
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito");
+                                      delay(1000);
+                                      lcd.clear();                                
                                       break;
                                     }
                                     delay(100);
@@ -176,11 +187,17 @@ void loop() {
                                   case '2':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                   lcd.print("Seleccionastes la posicion 2, Confirme");
+                                   lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(2);                                 
+                                      ingresarHoraAlarma(2);
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito"); 
+                                      delay(1000);
+                                      lcd.clear();                                 
                                       break;
                                     }
                                     delay(100);
@@ -189,11 +206,17 @@ void loop() {
                                   case '3':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 3, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(3);                                 
+                                      ingresarHoraAlarma(3);
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito");
+                                      delay(1000);
+                                      lcd.clear();                                  
                                       break;
                                     }
                                     delay(100);
@@ -202,11 +225,17 @@ void loop() {
                                   case '4':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 4, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(4);                                 
+                                      ingresarHoraAlarma(4);  
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito");      
+                                      delay(1000);
+                                      lcd.clear();                          
                                       break;
                                     }
                                     delay(100);
@@ -215,11 +244,17 @@ void loop() {
                                   case'5':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 5, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(5);                                 
+                                      ingresarHoraAlarma(5);
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito");    
+                                      delay(1000);
+                                      lcd.clear();                              
                                       break;
                                     }
                                     delay(100);
@@ -228,11 +263,17 @@ void loop() {
                                   case'6':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 6, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(6);                                 
+                                      ingresarHoraAlarma(6); 
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito"); 
+                                      delay(1000);
+                                      lcd.clear();                                
                                       break;
                                     }
                                     delay(100);
@@ -241,11 +282,17 @@ void loop() {
                                   case '7':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                   lcd.print("Seleccionastes la posicion 7, Confirme");
+                                   lcd.scrollDisplayLeft();
+                                   delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(7);                                 
+                                      ingresarHoraAlarma(7); 
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito"); 
+                                      delay(1000);
+                                      lcd.clear();                                
                                       break;
                                     }
                                     delay(100);
@@ -254,11 +301,17 @@ void loop() {
                                   case'8':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 8, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(8);                                 
+                                      ingresarHoraAlarma(8);
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito");
+                                      delay(1000);
+                                      lcd.clear();                                 
                                       break;
                                     }
                                     delay(100);
@@ -267,11 +320,17 @@ void loop() {
                                   case'9':
                                   while(1){
                                     char tecla = keypad.getKey();
-                                    lcd.clear();
+                                    //lcd.clear();
                                     lcd.setCursor(0,0);
-                                    lcd.print("Confirme");
+                                    lcd.print("Seleccionastes la posicion 9, Confirme");
+                                    lcd.scrollDisplayLeft();
+                                    delay(500);
                                     if (tecla=='*'){
-                                      ingresarHoraAlarma(9);                                 
+                                      ingresarHoraAlarma(9); 
+                                      lcd.setCursor(0,1);
+                                      lcd.print("lito");  
+                                      delay(1000);
+                                      lcd.clear();                               
                                       break;
                                     }
                                     delay(100);
@@ -284,9 +343,9 @@ void loop() {
                               }           
                               break;
               case 'D':
+              lcd.clear();
               while(1){
-                char tecla = keypad.getKey();
-                lcd.clear();
+                char tecla = keypad.getKey();                
                 lcd.setCursor(0,0);
                 lcd.print("Ingrese la posicion");                             
                 lcd.scrollDisplayLeft();
@@ -297,20 +356,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 0");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(0);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(0);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case '1':
@@ -318,20 +383,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 1");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(1);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(1);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case '2':
@@ -339,20 +410,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 2");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(2);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(2);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case '3':
@@ -360,20 +437,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 3");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(3);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(3);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case '4':
@@ -381,20 +464,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 4");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(4);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(4);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case'5':
@@ -402,20 +491,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 5");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(5);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(5);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case'6':
@@ -423,41 +518,53 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 6");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(6);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(6);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case'7':
-                  while(1){
+                 while(1){
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 7");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(7);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(7);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case'8':
@@ -465,20 +572,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 8");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(8);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(8);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                   case'9':
@@ -486,20 +599,26 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Confirme 2");
+                    lcd.print("Borrar alarma 9");
                     if (tecla=='*'){
-                      H++;
-                      if(H==2){
-                        borrarAlarma(9);
-                        lcd.setCursor(0,1);
-                        lcd.print("lito");
-                        delay(1000);
+                      while(1){
+                        char tecla = keypad.getKey();  
                         lcd.clear();
-                        
-                        break;
-                      }                    
+                        lcd.setCursor(0,0);
+                        lcd.print("Estas seguro?");
+                        delay(100);                                           
+                        if(tecla=='*'){
+                          borrarAlarma(9);
+                          lcd.setCursor(0,1);
+                          lcd.print("lito");
+                          delay(1000);
+                          lcd.clear();                        
+                          break;
+                        }                    
+                      }   
+                      break;                   
                     }
-                    delay(200);
+                      delay(200);
                   }
                   break;
                 } 
@@ -531,7 +650,9 @@ void loop() {
         lcd.setCursor(0,1);
         lcd.print("B Temporizador");
         delay(100);
+        
         if(tecla=='#'){
+          lcd.clear();
           break;
       }     
         contarTiempo();
@@ -559,11 +680,33 @@ void ingresarHoraAlarma(int i) {
   while (indice < 3) {
     char tecla = keypad.getKey();  
     if (tecla >= '0' && tecla <= '9') {
-      valor = valor * 10 + (tecla - '0');      
+      valor = valor * 10 + (tecla - '0'); 
+           
       lcd.setCursor(0,1);
       lcd.print(valor);
+      if(valor>23&&indice==0){
+        lcd.setCursor(0,0);
+        lcd.print("Hora imposible");
+        delay(1000);
+        valor=0;
+        indice=0;
+      }
+      else if(valor>59&&indice==1){
+        lcd.setCursor(0,0);
+        lcd.print("Minutos imposible");
+        delay(1000);
+        valor=0;
+        indice=0;
+        }
+        else if(valor>59&&indice==2){
+          lcd.setCursor(0,0);
+          lcd.print("Segundos imposible");
+          delay(1000);
+          valor=0;
+          indice=1;
+        }
     } 
-    else if (tecla == '#') {
+    else if (tecla == '*') {
       lcd.clear();
       Alarma[i][indice] = valor;
       Serial.println();
