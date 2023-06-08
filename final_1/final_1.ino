@@ -1,14 +1,10 @@
+////inclucion de librerias///
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <virtuabotixRTC.h> 
-#include <Keypad.h> 
-
-//Crea el objeto lcd direccion lcd 0x27 y 16 columnas x 2 filas
-LiquidCrystal_I2C lcd(0x27,16,2);
-
-// Creation of the Real Time Clock Object
-// Reset -> 11,CLK -> 13 , DAT -> 12,
-virtuabotixRTC myRTC(12,11,10);
+#include <LiquidCrystal_I2C.h>///librerias para el lcd y la comunicacion i2c////
+#include <virtuabotixRTC.h> ////libreria del rtc
+#include <Keypad.h> ////libreria del teclado matricial
+LiquidCrystal_I2C lcd(0x27,16,2);//Crea el objeto lcd direccion lcd 0x27 y 16 columnas x 2 filas
+virtuabotixRTC myRTC(12,11,10); ///crea el objeto myRTC (data,reset,clk)
 
 const byte filas = 4;       // Número de filas del teclado matricial
 const byte columnas = 4;    // Número de columnas del teclado matricial
@@ -35,52 +31,44 @@ int segundos = 0;
 bool temporizadorActivo = false;
 int H,i=0;
 void setup() {
-  Serial.begin(9600);
-  lcd.init();
-  //Enciende la luz de fondo
-  lcd.backlight();
+  Serial.begin(9600);////inicia la comunicacion serie a 9600 baudios
+  lcd.init();  
+  lcd.backlight();//Enciende la luz de fondo
   lcd.setCursor(0,0);
   lcd.print("Hello Moto");
-// Set the current date, and time in the following format:
-// seconds, minutes, hours, day of the week, day of the month, month, year
-  myRTC.setDS1302Time(00, 59, 23, 6, 10, 1, 2014);
-  
-  pinMode(Led,OUTPUT);
-  pinMode(Boton,INPUT_PULLUP);
+  myRTC.setDS1302Time(00, 59, 23, 6, 10, 1, 2014); ///setea la hora en el rtc en el formato(segundo,minutos,horas,dia de la semana, dia del mes, mes, año)  
+  pinMode(Led,OUTPUT); ///Led como salida
+  pinMode(Boton,INPUT_PULLUP);//Boton como entrada con una resistencia en pull up
   delay(1000);
   lcd.clear();
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  // This allows for the update of variables for time or accessing the individual elements.                //|
-    
-    myRTC.updateTime();
+void loop() {    
+    myRTC.updateTime(); ///actualiza el rtc
     lcd.setCursor(0,0);
-    lcd.print(myRTC.dayofmonth);
+    lcd.print(myRTC.dayofmonth);///imprime el dia del mes
     lcd.print("/");
-    lcd.print(myRTC.month);
+    lcd.print(myRTC.month); ///imprime el mes
     lcd.print("/");
-    lcd.print(myRTC.year%100);
+    lcd.print(myRTC.year%100);///imprime los 2 ultimos numeros del año
     lcd.print(" ");
-    lcd.print(myRTC.hours);
+    lcd.print(myRTC.hours);///imprime la hora
     lcd.print(":");
-    lcd.print(myRTC.minutes);
-    lcd.print(":");
-    lcd.print(myRTC.seconds);
+    lcd.print(myRTC.minutes);///imprime los minutos
+    lcd.print(":"); 
+    lcd.print(myRTC.seconds);////imprime los segundos
     lcd.print(" "); 
    
     if(Boton==0){
-      digitalWrite(Led,HIGH);
-    }
-    else if(myRTC.hours==0&&myRTC.minutes==0&&myRTC.seconds==0){
-      digitalWrite(Led,LOW);
-    }    
+      ///verifica si el boton a sido pulsodo y prende el Led
+      digitalWrite(Led,HIGH);      
+    }     
     else{
         digitalWrite(Led,LOW);
     }
     for(int i=0;i<9;i++){
       if(myRTC.hours==0&&myRTC.minutes==0&&myRTC.seconds==0){
+        ///compara si la hora es = a 0 y no prende, ya que la matris x defecto si no ponemos nada los numeros son 0
       digitalWrite(Led,LOW);
       }
       else if(myRTC.hours==Alarma[i][0]&&myRTC.minutes==Alarma[i][1]&&myRTC.seconds==Alarma[i][2]){
@@ -123,14 +111,14 @@ void loop() {
     lcd.print("No hay alarmas");    
   }
     
-    char tecla = keypad.getKey();    
-    if(tecla=='*'){
-      lcd.clear();
+    char tecla = keypad.getKey();///lee las tecla presionadas    
+    if(tecla=='*'){ ///si la tecla es un * entra al menu principal
+      lcd.clear();///limpia la pantalla
       while (1){
         char tecla = keypad.getKey();
         
-        switch(tecla){
-          case 'A':
+        switch(tecla){ ///toma la tecla presionada y en base a cada caso hace cosas distintas 
+          case 'A': ///entra en un menu
                   lcd.clear();
                   while(1){ 
                     char tecla = keypad.getKey();         
@@ -138,16 +126,16 @@ void loop() {
                     lcd.print("C New alarm");
                     lcd.setCursor(0,1);
                     lcd.print("D Delete alarm");
-                    switch(tecla){
+                    switch(tecla){ ///lee la tecla y si cumple con cada caso crea o elimina una alarma
                       case 'C':
                               lcd.clear();
                               while(1){
                                 char tecla = keypad.getKey();                               
                                 lcd.setCursor(0,0);
                                 lcd.print("Ingrese la posicion");                             
-                                lcd.scrollDisplayLeft();
+                                lcd.scrollDisplayLeft(); ////mueve el texto para la izquierda
                                 delay(500);
-                                switch(tecla){
+                                switch(tecla){///posicion de la alarma que se agrega
                                   case '0':
                                   while(1){
                                     char tecla = keypad.getKey();
@@ -156,11 +144,11 @@ void loop() {
                                     lcd.print("Seleccionastes la posicion 0, Confirme");
                                     lcd.scrollDisplayLeft();
                                     delay(500);
-                                    if (tecla=='*'){
-                                      ingresarHoraAlarma(0);
+                                    if (tecla=='*'){////confirma que este seguro
+                                      ingresarHoraAlarma(0);///llama a la funcion y le pasa el parametro de la posicion
                                       lcd.setCursor(0,1);
                                       lcd.print("lito");
-                                      break;
+                                      break;///una vez que hico todo, sale del loop
                                     }
                                     delay(100);
                                   }                               
@@ -342,7 +330,7 @@ void loop() {
                                 }
                               }           
                               break;
-              case 'D':
+              case 'D': 
               lcd.clear();
               while(1){
                 char tecla = keypad.getKey();                
@@ -364,8 +352,8 @@ void loop() {
                         lcd.setCursor(0,0);
                         lcd.print("Estas seguro?");
                         delay(100);                                           
-                        if(tecla=='*'){
-                          borrarAlarma(0);
+                        if(tecla=='*'){///confirma que este seguro
+                          borrarAlarma(0);////llama a la funcion y le pasa el parametro de la posicion
                           lcd.setCursor(0,1);
                           lcd.print("lito");
                           delay(1000);
@@ -638,8 +626,8 @@ void loop() {
           lcd.clear();
           while(1){
             char tecla = keypad.getKey(); 
-            Temporizador( tecla); 
-            if(tecla=='#'){
+            Temporizador( tecla); ///llama a la funcion temporizador y pasa el parametro de la tecla
+            if(tecla=='#'){///si latecla es un # sale del loop
               break;
             }
           }        
@@ -655,7 +643,7 @@ void loop() {
           lcd.clear();
           break;
       }     
-        contarTiempo();
+        contarTiempo();///llama a la funcion contarTiempo para seguir ejecutando el temporizador en segundo plano
         delay(100);
       }
     }
@@ -665,6 +653,9 @@ void loop() {
 
 ////////funciones de la alarma////////////
 void borrarAlarma(int i){
+  /*
+   solo el parametro de la matris para que todo se vuelva 0 y por ende se elimine el dato
+   */
   for(int a=0;a<3;a++){
     Alarma[i][a]=0;
   }
@@ -672,26 +663,45 @@ void borrarAlarma(int i){
 }
 
 void ingresarHoraAlarma(int i) {
+  /*
+   se ingresa la posicion de la matris que fue seleccionada,
+   y se ingresa la hora, minutos y segundos
+   */
   int valor = 0;
   int indice = 0;
   lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Ingrese Hora");
+ lcd.setCursor(0,0);
+ lcd.print("Ingrese Hora");
   while (indice < 3) {
     char tecla = keypad.getKey();  
     if (tecla >= '0' && tecla <= '9') {
       valor = valor * 10 + (tecla - '0'); 
-           
-      lcd.setCursor(0,1);
-      lcd.print(valor);
-      if(valor>23&&indice==0){
+        lcd.setCursor(0,1);
+      lcd.print(valor);     
+      
+    } 
+    else if (tecla == '*') {
+      lcd.clear();  
+       if(valor>23&&indice==0){
         lcd.setCursor(0,0);
-        lcd.print("Hora imposible");
-        delay(1000);
-        valor=0;
-        indice=0;
-      }
-      else if(valor>59&&indice==1){
+         lcd.print("Hora imposible");
+         delay(1000);
+        while(1){    
+            char tecla = keypad.getKey();
+            lcd.setCursor(0,0);
+            lcd.print("Ingrese Hora");  
+            if (tecla >= '0' && tecla <= '9') {
+              valor = valor * 10 + (tecla - '0'); 
+                lcd.setCursor(0,1);
+              lcd.print(valor);  
+              if(tecla=='*'){
+                break;   
+              }
+              
+            }   
+        }        
+        }    
+       if(valor>59&&indice==1){
         lcd.setCursor(0,0);
         lcd.print("Minutos imposible");
         delay(1000);
@@ -705,9 +715,6 @@ void ingresarHoraAlarma(int i) {
           valor=0;
           indice=1;
         }
-    } 
-    else if (tecla == '*') {
-      lcd.clear();
       Alarma[i][indice] = valor;
       Serial.println();
       Serial.print("Alarma[");
@@ -716,6 +723,7 @@ void ingresarHoraAlarma(int i) {
       Serial.println(valor);
       valor = 0;      
       indice++;
+      
       if(indice==1){        
         lcd.setCursor(0,0);
         lcd.print("Ingrese Minutos");
@@ -732,25 +740,27 @@ void ingresarHoraAlarma(int i) {
   
 }
 void Temporizador(char tecla){
-  
+  /*
+   funcion principal del temporizador
+   */
   lcd.setCursor(0, 0);  
   lcd.print("Temporizador");
   if (tecla) {
-    switch (tecla) {
+    switch (tecla) {///depende la tecla presionada, depende lo que va a hacer
       case 'A':
-        temporizadorActivo = true;
+        temporizadorActivo = true; ///activa el temporizador
         break;
       case 'B':
-        temporizadorActivo = false;
+        temporizadorActivo = false; ////frena el temporizador
         break;
       case 'C':
-        resetTemporizador();
+        resetTemporizador(); ///llama a la funcion
         break;
       case 'D':
-        mostrarTiempo();
+        mostrarTiempo();///llama a la funcion
         break;
       default:
-        ajustarTiempo(tecla);
+        ajustarTiempo(tecla); ///llama a la funcion y le pasa el parametro tecla
         break;
     }
   }
@@ -759,7 +769,7 @@ void Temporizador(char tecla){
     contarTiempo();
     mostrarTiempo();
     if (!temporizadorActivo && horas == 0 && minutos == 0 && segundos == 0) {
-    digitalWrite(Led, HIGH);  // Activar el pin 13 (LED) cuando el tiempo se haya cumplido
+    digitalWrite(Led, HIGH);  //prende el led si el temporisador llego a 0
     delay(5000);  
     digitalWrite(Led,LOW);
   }
@@ -768,6 +778,9 @@ void Temporizador(char tecla){
 }
 /////funciones del temporizador////////
 void ajustarTiempo(char tecla) {
+  /*
+   ingreso de datos del temporizador
+   */
 int valor = tecla - '0';
 
 if (valor >= 0 && valor <= 9) {
@@ -780,6 +793,9 @@ if (valor >= 0 && valor <= 9) {
 }
 
 void contarTiempo() {
+  /*
+   * cuenta el tiempo transcurrido 
+   */
   if (segundos == 0) {
     if (minutos == 0) {
       if (horas == 0) {
@@ -801,6 +817,9 @@ void contarTiempo() {
 }
 
 void mostrarTiempo() {
+  /*
+   * muestra el tiempo transcurrido en el lcd
+   */
   lcd.setCursor(0, 1);
   lcd.print("Tiempo: ");
   if (horas < 10) {
@@ -820,6 +839,9 @@ void mostrarTiempo() {
 }
 
 void resetTemporizador() {
+  /*
+   * resetea el temporizador
+   */
   horas = 0;
   minutos = 0;
   segundos = 0;
