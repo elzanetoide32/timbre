@@ -22,6 +22,7 @@ byte pinesFilas[filas] = {9, 8, 7, 6};         // Pines conectados a las filas
 byte pinesColumnas[columnas] = {5, 4, 3, 2};   // Pines conectados a las columnas
 Keypad keypad = Keypad(makeKeymap(teclas), pinesFilas, pinesColumnas, filas, columnas);
 int Alarma[9][3];////matris de alarmas
+int alarma2[9][3];
 #define Led 13 ///rele
 #define Boton A0
 //////variables para el temporizador//////
@@ -30,7 +31,7 @@ int minutos = 0;
 int segundos = 0;
 bool temporizadorActivo = false;
 #define direccionInicio 0 // declara una variable con la dirección inicial a escribir
-//const int numAlarms = sizeof(alarms) / sizeof(alarms[0]);
+const int numAlarms = sizeof(Alarma);
 void setup() {
   Serial.begin(9600);////inicia la comunicacion serie a 9600 baudios
   lcd.init();  
@@ -46,12 +47,23 @@ void setup() {
 }
 
 void loop() { 
-    /*bubbleSort(alarms, numAlarms);  
-    Serial.print("La siguiente alarma es a las ");
-    Serial.print(nextAlarm.hour);
-    Serial.print(":");
-    Serial.print(nextAlarm.minute);
-    Serial.println();*/
+   bubbleSort();  
+   Serial.print("hola");
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < 3; j++) {        
+        Serial.print(alarma2[i][j]);
+        Serial.print("\t");
+      }
+      Serial.println();
+    }
+    lcd.setCursor(0,1);  
+        lcd.print(alarma2[0][0]);
+        lcd.print(":");
+        lcd.print(alarma2[0][1]);
+        lcd.print(":");
+        lcd.print(alarma2[0][2]);  
+      
+  
     //EEPROM.put(direccionInicio, Alarma); // escribe en la dirección indicada, y la actualiza   
     myRTC.updateTime(); ///actualiza el rtc
     lcd.setCursor(0,0);
@@ -635,20 +647,70 @@ void loop() {
     
 }
 ////////ordenamiento de burbuja
-/*void bubbleSort(Alarm arr[], int size) {
-  for (int i = 0; i < size - 1; i++) {
-    for (int j = 0; j < size - i - 1; j++) {
-      // Comparar las alarmas utilizando la hora y el minuto
-      if (arr[j].hour > arr[j + 1].hour || (arr[j].hour == arr[j + 1].hour && arr[j].minute > arr[j + 1].minute)) {
-        // Intercambiar las alarmas si están en el orden incorrecto
-        Alarm temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
+void bubbleSort() {
+  // Copiar la matriz original a la matriz ordenada
+  for (int i = 0; i < 9; i++) {
+    for (int j = 0; j < 3; j++) {
+      alarma2[i][j] = Alarma[i][j];
+    }
+  }
+  for (int i = 0; i < 9 - 1; i++) {
+    for (int j = 0; j < 9 - i - 1; j++) {
+      // Obtener la hora, los minutos y los segundos de las dos filas a comparar
+      int hour1 = alarma2[j][0];
+      int minute1 = alarma2[j][1];
+      int second1 = alarma2[j][2];
+      int hour2 = myRTC.hours;
+      int minute2 = myRTC.minutes;
+      int second2 = myRTC.seconds;
+       if (hour1 < hour2 || (hour1 == hour2 && minute1 < minute2) || (hour1 == hour2 && minute1 == minute2 && second1 < second2)) {
+        // Intercambiar las filas si están en el orden incorrecto
+        for (int k = 0; k < 3; k++) {
+          int temp = alarma2[j][k];
+          alarma2[j][k] = alarma2[j+1][k];
+          alarma2[j+1][k] = temp;
+        }
       }
     }
   }
-}*/
+  
+   int closestAlarm = -1;
+  int closestTimeDiff = 24 * 60 * 60; // Inicializar con un valor alto (24 horas en segundos)
+  for (int i = 0; i < 9; i++) {
+    int alarmHour = alarma2[i][0];
+    int alarmMinute = alarma2[i][1];
+    int alarmSecond = alarma2[i][2];
 
+    int timeDiff = calculateTimeDifference(myRTC.hours, myRTC.minutes, myRTC.seconds, alarmHour, alarmMinute, alarmSecond);
+    if (timeDiff < closestTimeDiff) {
+      closestAlarm = i;
+      closestTimeDiff = timeDiff;
+    }
+  }
+
+  // Mover la alarma más cercana a la posición 0 de la matriz ordenada
+  if (closestAlarm != -1) {
+    for (int i = closestAlarm; i > 0; i--) {
+      for (int j = 0; j < 3; j++) {
+        int temp = alarma2[i][j];
+        alarma2[i][j] = alarma2[i - 1][j];
+        alarma2[i - 1][j] = temp;
+      }
+    }
+  }
+}
+
+
+int calculateTimeDifference(int currentHour, int currentMinute, int currentSecond, int alarmHour, int alarmMinute, int alarmSecond) {
+  int currentTimeInSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond;
+  int alarmTimeInSeconds = alarmHour * 3600 + alarmMinute * 60 + alarmSecond;
+
+  if (alarmTimeInSeconds >= currentTimeInSeconds) {
+    return alarmTimeInSeconds - currentTimeInSeconds;
+  } else {
+    return (24 * 60 * 60 - currentTimeInSeconds) + alarmTimeInSeconds;
+  }
+}
 ////////funciones de la alarma////////////
 void borrarAlarma(int i){
   /*
@@ -662,74 +724,68 @@ void borrarAlarma(int i){
 
 void ingresarHoraAlarma(int i) {
   /*
-   se ingresa la posicion de la matris que fue seleccionada,
+   se ingresa la posición de la matriz que fue seleccionada,
    y se ingresa la hora, minutos y segundos
    */
   int valor = 0;
   int indice = 0;
-  char tecla = keypad.getKey();
   lcd.clear();
   while (indice <= 2) {
-    if(indice==0){
-      lcd.setCursor(0,0);
+    if (indice == 0) {
+      lcd.setCursor(0, 0);
       lcd.print("Ingrese Hora");
-      }
-     else if(indice==1){        
-        lcd.setCursor(0,0);
-        lcd.print("Ingrese Minutos");
-     }
-     else if(indice==2){
-        lcd.setCursor(0,0);
-        lcd.print("Ingrese Segundos");
-     }
-    char tecla = keypad.getKey();  
+    } else if (indice == 1) {
+      lcd.setCursor(0, 0);
+      lcd.print("Ingrese Minutos");
+    } else if (indice == 2) {
+      lcd.setCursor(0, 0);
+      lcd.print("Ingrese Segundos");
+    }
+    char tecla = keypad.getKey();
     if (tecla >= '0' && tecla <= '9') {
-      valor = valor * 10 + (tecla - '0'); 
-      lcd.setCursor(0,1);
-      lcd.print(valor);     
-    } 
-    else if (tecla == '*') {
-      lcd.clear();  
-       if(valor>23&&indice==0){
-        lcd.setCursor(0,0);
-         lcd.print("Hora imposible");
-         lcd.setCursor(0,1);
-         lcd.print("Intente de nuevo");
-         delay(1000);               
-        }    
-       if(valor>59&&indice==1){
-        lcd.setCursor(0,0);
-        lcd.print("Minutos imposible");
-        lcd.setCursor(0,1);
+      valor = valor * 10 + (tecla - '0');
+      lcd.setCursor(0, 1);
+      lcd.print(valor);
+    } else if (tecla == '*') {
+      lcd.clear();
+      if (valor > 23 && indice == 0) {
+        lcd.setCursor(0, 0);
+        lcd.print("Hora imposible");
+        lcd.setCursor(0, 1);
         lcd.print("Intente de nuevo");
         delay(1000);
+        lcd.clear();
         valor=0;
-        indice=0;
-        }
-        else if(valor>59&&indice==2){
-          lcd.setCursor(0,0);
-          lcd.print("Segundos imposible");
-          lcd.setCursor(0,1);
-          lcd.print("Intente de nuevo");
-          delay(1000);
-          valor=0;
-          indice=1;
-        }
-      Alarma[i][indice] = valor;
-      Serial.println();
-      Serial.print("Alarma[");
-      Serial.print(indice);
-      Serial.print("] = ");
-      Serial.println(valor);
-      valor = 0;      
-      indice++;
-      
+      } else if (valor > 59 && indice == 1) {
+        lcd.setCursor(0, 0);
+        lcd.print("Minutos imposible");
+        lcd.setCursor(0, 1);
+        lcd.print("Intente de nuevo");
+        delay(1000); 
+        lcd.clear();
+        valor=0;             
+      } else if (valor > 59 && indice == 2) {
+        lcd.setCursor(0, 0);
+        lcd.print("Segundos imposible");
+        lcd.setCursor(0, 1);
+        lcd.print("Intente de nuevo");
+        delay(1000); 
+        lcd.clear();
+        valor=0;      
+      } else {
+        Alarma[i][indice] = valor;
+        Serial.println();
+        Serial.print("Alarma[");
+        Serial.print(indice);
+        Serial.print("] = ");
+        Serial.println(valor);
+        valor = 0;
+        indice++;
+      }
     }
-        
   }
-  
-  
 }
+
 void Temporizador(char tecla){
   /*
    funcion principal del temporizador
