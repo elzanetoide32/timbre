@@ -44,11 +44,14 @@ void setup() {
   ///EEPROM.get( direccionInicio, Alarma );  
   delay(1000);
   lcd.clear();
+   eeprom_read_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;
 }
 
 void loop() { 
+   eeprom_update_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;  
+   
    bubbleSort();  
-   Serial.print("hola");
+   Serial.print("->");
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 3; j++) {        
         Serial.print(alarma2[i][j]);
