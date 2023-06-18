@@ -44,13 +44,12 @@ void setup() {
   ///EEPROM.get( direccionInicio, Alarma );  
   delay(1000);
   lcd.clear();
-   eeprom_read_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;
+  eeprom_read_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ; //lee el valor de la eeprom y lo almacena en la matris
 }
 
 void loop() { 
-   eeprom_update_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;  
-   
-   bubbleSort();  
+   eeprom_update_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;  ///actualiza la matris on los valores, obiamente desordenados   
+   bubbleSort();///funcion para ordenar la matris  
    Serial.print("->");
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 3; j++) {        
