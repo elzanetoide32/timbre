@@ -1,14 +1,15 @@
+/*
+credo por el equipo la pupineta, con el rtc ds3231
+*/
 ////inclucion de librerias///
 #include <EEPROM.h> // incluye la librería para el manejo de la memoria EEPROM
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>///librerias para el lcd y la comunicacion i2c////
-#include <virtuabotixRTC.h> ////libreria del rtc
+#include "RTClib.h"////libreria del rtc
 #include <Keypad.h> ////libreria del teclado matricial
 LiquidCrystal_I2C lcd(0x27,16,2);//Crea el objeto lcd direccion lcd 0x27 y 16 columnas x 2 filas
-#define data 12
-#define rst 11
-#define clk 10
-virtuabotixRTC myRTC(data,rst,clk); ///crea el objeto myRTC (data,reset,clk)
+RTC_DS3231 rtc;
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 const byte filas = 4;       // Número de filas del teclado matricial
 const byte columnas = 4;    // Número de columnas del teclado matricial
 char teclas[filas][columnas] = {
@@ -38,19 +39,29 @@ void setup() {
   lcd.backlight();//Enciende la luz de fondo
   lcd.setCursor(3,0);
   lcd.print("Bienvenido");
-  myRTC.setDS1302Time(00, 30, 14, 6, 13, 6, 2023); ///setea la hora en el rtc en el formato(segundo,minutos,horas,dia de la semana, dia del mes, mes, año)  
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    while (1) delay(10);
+  }
+
+  if (rtc.lostPower()) {
+    Serial.println("RTC lost power, let's set the time!");    
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  
+  }
   pinMode(Led,OUTPUT); ///Led como salida
   pinMode(Boton,INPUT_PULLUP);//Boton como entrada con una resistencia en pull up
-  ///EEPROM.get( direccionInicio, Alarma );  
   delay(1000);
   lcd.clear();
   eeprom_read_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ; //lee el valor de la eeprom y lo almacena en la matris
 }
 
 void loop() { 
+  DateTime myRTC = rtc.now();
    eeprom_update_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;  ///actualiza la matris on los valores, obiamente desordenados   
    bubbleSort();///funcion para ordenar la matris  
-   Serial.print("->");
+   Serial.print("-> ");
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 3; j++) {        
         Serial.print(alarma2[i][j]);
@@ -59,27 +70,25 @@ void loop() {
       Serial.println();
     }
     lcd.setCursor(0,1);  
-        lcd.print(alarma2[0][0]);
-        lcd.print(":");
-        lcd.print(alarma2[0][1]);
-        lcd.print(":");
-        lcd.print(alarma2[0][2]);  
-      
-  
-    //EEPROM.put(direccionInicio, Alarma); // escribe en la dirección indicada, y la actualiza   
-    myRTC.updateTime(); ///actualiza el rtc
-    lcd.setCursor(0,0);
-    lcd.print(myRTC.dayofmonth);///imprime el dia del mes
-    lcd.print("/");
-    lcd.print(myRTC.month); ///imprime el mes
-    lcd.print("/");
-    lcd.print(myRTC.year%100);///imprime los 2 ultimos numeros del año
-    lcd.print(" ");
-    lcd.print(myRTC.hours);///imprime la hora
+    lcd.print(alarma2[0][0]);
     lcd.print(":");
-    lcd.print(myRTC.minutes);///imprime los minutos
+    lcd.print(alarma2[0][1]);
+    lcd.print(":");
+    lcd.print(alarma2[0][2]); 
+       
+    //myRTC.updateTime(); ///actualiza el rtc
+    lcd.setCursor(0,0);
+    lcd.print(myRTC.day(),DEC);///imprime el dia del mes
+    lcd.print("/");
+    lcd.print(myRTC.month(),DEC); ///imprime el mes
+    lcd.print("/");
+    lcd.print(myRTC.year()%100);///imprime los 2 ultimos numeros del año
+    lcd.print(" ");
+    lcd.print(myRTC.hour(),DEC);///imprime la hora
+    lcd.print(":");
+    lcd.print(myRTC.minute(),DEC);///imprime los minutos
     lcd.print(":"); 
-    lcd.print(myRTC.seconds);////imprime los segundos
+    lcd.print(myRTC.second(),DEC);////imprime los segundos
     lcd.print(" "); 
    
     if(Boton==0){
@@ -90,11 +99,11 @@ void loop() {
         digitalWrite(Led,LOW);
     }
     for(int i=0;i<9;i++){
-      if(myRTC.hours==0&&myRTC.minutes==0&&myRTC.seconds==0){
+      if(myRTC.hour()==0&&myRTC.minute()==0&&myRTC.second()==0){
         ///compara si la hora es = a 0 y no prende, ya que la matris x defecto si no ponemos nada los numeros son 0
       digitalWrite(Led,LOW);
       }
-      else if(myRTC.hours==Alarma[i][0]&&myRTC.minutes==Alarma[i][1]&&myRTC.seconds==Alarma[i][2]){
+      else if(myRTC.hour()==Alarma[i][0]&&myRTC.minute()==Alarma[i][1]&&myRTC.second()==Alarma[i][2]){
         digitalWrite(Led, HIGH);  // Encender el LED cuando se alcance la hora de la alarma
         delay(5000);
         digitalWrite(Led,LOW);  
@@ -121,7 +130,9 @@ void loop() {
                               while(1){
                                 char tecla = keypad.getKey();                               
                                 lcd.setCursor(0,0);
-                                lcd.print("N alarma:");                                
+                                lcd.print("N");
+                                lcd.print(char(223));
+                                lcd.print("alarma:");                                
                                 switch(tecla){///posicion de la alarma que se agrega
                                   
                                   case '0':
@@ -344,7 +355,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 0");
+                    lcd.print(Alarma[0][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[0][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[0][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -359,10 +376,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -371,7 +388,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 1");
+                    lcd.print(Alarma[1][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[1][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[1][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -386,10 +409,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -398,7 +421,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 2");
+                    lcd.print(Alarma[2][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[2][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[2][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -413,10 +442,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -425,7 +454,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 3");
+                    lcd.print(Alarma[3][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[3][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[3][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -440,10 +475,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -452,7 +487,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 4");
+                    lcd.print(Alarma[4][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[4][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[4][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -467,10 +508,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -479,7 +520,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 5");
+                    lcd.print(Alarma[5][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[5][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[5][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -494,10 +541,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -506,7 +553,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 6");
+                    lcd.print(Alarma[6][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[6][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[6][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -521,10 +574,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -533,7 +586,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 7");
+                    lcd.print(Alarma[7][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[7][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[7][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -548,10 +607,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        }else if(tecla=="#"){break;}                    
                       }   
                       break;                   
-                    }
+                    }else if(tecla=="#"){break;}
                       delay(200);
                   }
                   break;
@@ -560,7 +619,13 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 8");
+                    lcd.print(Alarma[8][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[8][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[8][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
@@ -575,11 +640,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
+                        } else if(tecla=="#"){break;}                   
                       }   
                       break;                   
-                    }
-                      delay(200);
+                    }else if(tecla=="#"){break;}                      
                   }
                   break;
                   case'9':
@@ -587,13 +651,19 @@ void loop() {
                     char tecla = keypad.getKey();
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Borrar alarma 9");
+                    lcd.print(Alarma[9][0]);
+                    lcd.print("/");
+                    lcd.print(Alarma[9][1]);
+                    lcd.print("/");
+                    lcd.print(Alarma[9][2]);
+                    lcd.setCursor(0,1);
+                    lcd.print("desea borrar?");
                     if (tecla=='*'){
                       while(1){
                         char tecla = keypad.getKey();  
-                        lcd.clear();
+                        lcd.clear();                                               
                         lcd.setCursor(0,0);
-                        lcd.print("Estas seguro?");
+                        lcd.print("Estas seguro?");                         
                         delay(100);                                           
                         if(tecla=='*'){
                           borrarAlarma(9);
@@ -602,13 +672,10 @@ void loop() {
                           delay(1000);
                           lcd.clear();                        
                           break;
-                        }                    
-                      }   
-                      break;                   
+                        }else if(tecla=="#"){break;}                                            
                     }
                       delay(200);
-                  }
-                  break;
+                  }else if(tecla=="#"){break;}                
                 } 
                  if(tecla=='#'){
                   break;
@@ -645,11 +712,12 @@ void loop() {
       }     
         //contarTiempo();///llama a la funcion contarTiempo para seguir ejecutando el temporizador en segundo plano
       }
-    }
-    
+    }    
+  }
 }
 ////////ordenamiento de burbuja
 void bubbleSort() {
+  DateTime myRTC = rtc.now();
   // Copiar la matriz original a la matriz ordenada
   for (int i = 0; i < 9; i++) {
     for (int j = 0; j < 3; j++) {
@@ -662,9 +730,9 @@ void bubbleSort() {
       int hour1 = alarma2[j][0];
       int minute1 = alarma2[j][1];
       int second1 = alarma2[j][2];
-      int hour2 = myRTC.hours;
-      int minute2 = myRTC.minutes;
-      int second2 = myRTC.seconds;
+      int hour2 = myRTC.hour();
+      int minute2 = myRTC.minute();
+      int second2 = myRTC.second();
        if (hour1 < hour2 || (hour1 == hour2 && minute1 < minute2) || (hour1 == hour2 && minute1 == minute2 && second1 < second2)) {
         // Intercambiar las filas si están en el orden incorrecto
         for (int k = 0; k < 3; k++) {
@@ -683,7 +751,7 @@ void bubbleSort() {
     int alarmMinute = alarma2[i][1];
     int alarmSecond = alarma2[i][2];
 
-    int timeDiff = calculateTimeDifference(myRTC.hours, myRTC.minutes, myRTC.seconds, alarmHour, alarmMinute, alarmSecond);
+    int timeDiff = calculateTimeDifference(myRTC.hour(), myRTC.minute(), myRTC.second(), alarmHour, alarmMinute, alarmSecond);
     if (timeDiff < closestTimeDiff) {
       closestAlarm = i;
       closestTimeDiff = timeDiff;
@@ -717,7 +785,7 @@ int calculateTimeDifference(int currentHour, int currentMinute, int currentSecon
 void borrarAlarma(int i){
   /*
    solo el parametro de la matris para que todo se vuelva 0 y por ende se elimine el dato
-   */
+   */   
   for(int a=0;a<3;a++){
     Alarma[i][a]=0;
   }
@@ -729,9 +797,26 @@ void ingresarHoraAlarma(int i) {
    se ingresa la posición de la matriz que fue seleccionada,
    y se ingresa la hora, minutos y segundos
    */
+  
+  lcd.clear();
+  if (Alarma[i][0]>0){
+    lcd.setCursor(0, 0);
+    lcd.print("ya hay una");
+    lcd.setCursor(0,1);
+    lcd.print("desea sobreescribir?");
+    while(1){
+      char tecla = keypad.getKey();
+      if(tecla=="*"){
+        aux(i);
+      }else if(tecla=="#"){
+        break;
+      }
+    }    
+  }else{aux(i);}
+}
+void aux(int i){
   int valor = 0;
   int indice = 0;
-  lcd.clear();
   while (indice <= 2) {
     if (indice == 0) {
       lcd.setCursor(0, 0);
@@ -788,10 +873,10 @@ void ingresarHoraAlarma(int i) {
   }
 }
 
+/*
 void Temporizador(char tecla){
-  /*
-   funcion principal del temporizador
-   */
+  ///funcion principal del temporizador
+   
   lcd.setCursor(0, 0);  
   lcd.print("Temporizador");
   if (tecla) {
@@ -827,9 +912,8 @@ void Temporizador(char tecla){
 }
 /////funciones del temporizador////////
 void ajustarTiempo(char tecla) {
-  /*
-   ingreso de datos del temporizador
-   */
+  //ingreso de datos del temporizador
+   
 int valor = tecla - '0';
 
 if (valor >= 0 && valor <= 9) {
@@ -842,9 +926,8 @@ if (valor >= 0 && valor <= 9) {
 }
 
 void contarTiempo() {
-  /*
-   * cuenta el tiempo transcurrido 
-   */
+  //cuenta el tiempo transcurrido 
+   
   if (segundos == 0) {
     if (minutos == 0) {
       if (horas == 0) {
@@ -865,9 +948,8 @@ void contarTiempo() {
 }
 
 void mostrarTiempo() {
-  /*
-   * muestra el tiempo transcurrido en el lcd
-   */
+  /// muestra el tiempo transcurrido en el lcd
+   
   lcd.setCursor(0, 1);
   lcd.print("Tiempo: ");
   if (horas < 10) {
@@ -887,9 +969,8 @@ void mostrarTiempo() {
 }
 
 void resetTemporizador() {
-  /*
-   * resetea el temporizador
-   */
+  // resetea el temporizador
+   
   horas = 0;
   minutos = 0;
   segundos = 0;
@@ -898,4 +979,4 @@ void resetTemporizador() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Temporizador");
-}
+}*/
