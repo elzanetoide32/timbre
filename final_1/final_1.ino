@@ -61,7 +61,7 @@ void loop() {
    DateTime myRTC = rtc.now();
    eeprom_update_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;  ///actualiza la matris on los valores, obiamente desordenados   
    bubbleSort();///funcion para ordenar la matris  
-   Serial.print("-> ");
+   /*Serial.print("-> ");
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 3; j++) {        
         Serial.print(alarma2[i][j]);
@@ -69,12 +69,25 @@ void loop() {
       }
       Serial.println();
     }
-    lcd.setCursor(0,1);  
-    lcd.print(alarma2[0][0]);
-    lcd.print(":");
-    lcd.print(alarma2[0][1]);
-    lcd.print(":");
-    lcd.print(alarma2[0][2]); 
+     Serial.print(">> ");
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < 3; j++) {        
+        Serial.print(Alarma[i][j]);
+        Serial.print("\t");
+      }
+      Serial.println();
+    }*/
+    if(alarma2[0][0] <= -1){
+        lcd.setCursor(0, 1);
+        lcd.print("No hay Alarmas");      
+      }else{
+        lcd.setCursor(0,1);  
+        lcd.print(alarma2[0][0]);
+        lcd.print(":");
+        lcd.print(alarma2[0][1]);
+        lcd.print(":");
+        lcd.print(alarma2[0][2]); 
+      }   
     lcd.setCursor(0,0);
     lcd.print(myRTC.day(),DEC);///imprime el dia del mes
     lcd.print("/");
@@ -123,16 +136,16 @@ void loop() {
           case 'C':
                    lcd.clear();
                    while(1){
-                   char tecla = keypad.getKey();                               
-                   lcd.setCursor(0,0);
-                   lcd.print("N");
-                   lcd.print(char(223));
-                   lcd.print("alarma:"); 
-                   delay(100);
-                   lcd.clear();                               
-                   switch(tecla){///posicion de la alarma que se agrega
-                    case '0':
-                    lcd.clear();
+                     char tecla = keypad.getKey();                               
+                     lcd.setCursor(0,0);
+                     lcd.print("Posicion N");
+                     lcd.print(char(223));
+                     lcd.print(":"); 
+                     delay(100);
+                     lcd.clear();                               
+                     switch(tecla){///posicion de la alarma que se agrega
+                      case '0':
+                      lcd.clear();
                              while(1){
                                     char tecla = keypad.getKey();
                                     lcd.clear();
@@ -374,21 +387,33 @@ void loop() {
                     break;
                   }
                   }              
-                                                      
+                  break;                                  
           case 'D': 
                    lcd.clear();
                    while(1){
                             char tecla = keypad.getKey();                                     
-                            lcd.setCursor(0,0);
-                            lcd.print("Ingrese la posicion"); 
+                            ///lcd.setCursor(0,0);
+                            lcd.print("Posicion N");
+                            lcd.print(char(223));
+                            lcd.print(":"); 
                             delay(100);  
                             lcd.clear();         
                             switch(tecla){
                                         case '0':
+                                              lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                                if(Alarma[0][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[0][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[0][0]);
                                                   lcd.print("/");
@@ -397,36 +422,47 @@ void loop() {
                                                   lcd.print(Alarma[0][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(0);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("¿Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(0);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         case '1':
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
+                                                lcd.clear();
+                                                if(Alarma[1][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[1][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[1][0]);
                                                   lcd.print("/");
@@ -435,36 +471,47 @@ void loop() {
                                                   lcd.print(Alarma[1][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(1);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(1);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         case '2':
+                                              lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                                if(Alarma[2][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[2][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[2][0]);
                                                   lcd.print("/");
@@ -473,36 +520,47 @@ void loop() {
                                                   lcd.print(Alarma[2][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(2);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(2);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         case '3':
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
+                                                lcd.clear();
+                                                if(Alarma[3][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[3][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[3][0]);
                                                   lcd.print("/");
@@ -511,36 +569,47 @@ void loop() {
                                                   lcd.print(Alarma[3][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(3);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(3);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                        case '4':
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
+                                                lcd.clear();
+                                                if(Alarma[4][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[4][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[4][0]);
                                                   lcd.print("/");
@@ -549,36 +618,47 @@ void loop() {
                                                   lcd.print(Alarma[4][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(4);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(4);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         case'5':
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
+                                                lcd.clear();
+                                                if(Alarma[5][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[5][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[5][0]);
                                                   lcd.print("/");
@@ -587,45 +667,57 @@ void loop() {
                                                   lcd.print(Alarma[5][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(5);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(5);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         case'6':
                                               lcd.clear();
                                               while (1) {
                                                 char tecla = keypad.getKey();
                                                 lcd.clear();
-                                                lcd.setCursor(0, 0);
-                                                lcd.print(Alarma[6][0]);
-                                                lcd.print("/");
-                                                lcd.print(Alarma[6][1]);
-                                                lcd.print("/");
-                                                lcd.print(Alarma[6][2]);
-                                                lcd.setCursor(0, 1);
-                                                lcd.print("Desea borrar?");
-                                                if (tecla == '*') {
+                                                if(Alarma[6][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[6][0] <= -1){
+                                                  lcd.setCursor(0, 0);
+                                                  lcd.print(Alarma[6][0]);
+                                                  lcd.print("/");
+                                                  lcd.print(Alarma[6][1]);
+                                                  lcd.print("/");
+                                                  lcd.print(Alarma[6][2]);
+                                                  lcd.setCursor(0, 1);
+                                                  lcd.print("Desea borrar?");
+                                                }                                                
+                                                else if (tecla == '*') {
                                                   while (1) {
                                                     char tecla = keypad.getKey();
                                                     lcd.clear();
@@ -635,7 +727,7 @@ void loop() {
                                                     if (tecla == '*') {
                                                       borrarAlarma(6);
                                                       lcd.setCursor(0, 1);
-                                                      lcd.print("¡Listo!");
+                                                      lcd.print("Listo!");
                                                       delay(1000);
                                                       lcd.clear();
                                                       break;
@@ -652,9 +744,19 @@ void loop() {
                                               break;
                                         case'7':
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
+                                                lcd.clear();
+                                                if(Alarma[7][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[7][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[7][0]);
                                                   lcd.print("/");
@@ -663,36 +765,47 @@ void loop() {
                                                   lcd.print(Alarma[7][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(7);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(7);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         case'8':
+                                               lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                                if(Alarma[8][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[8][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[8][0]);
                                                   lcd.print("/");
@@ -701,36 +814,47 @@ void loop() {
                                                   lcd.print(Alarma[8][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(8);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(8);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         case'9':
+                                              lcd.clear();
+                                              while (1) {
+                                                char tecla = keypad.getKey();
                                                 lcd.clear();
-                                                while (1) {
-                                                  char tecla = keypad.getKey();
-                                                  lcd.clear();
+                                                if(Alarma[9][0] <= -1){
+                                                  while(1) {
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("No hay Alarmas");
+                                                    delay(1000);
+                                                    lcd.clear();
+                                                    break;    
+                                                   }
+                                                   break;
+                                                }else if(Alarma[9][0] <= -1){
                                                   lcd.setCursor(0, 0);
                                                   lcd.print(Alarma[9][0]);
                                                   lcd.print("/");
@@ -739,31 +863,32 @@ void loop() {
                                                   lcd.print(Alarma[9][2]);
                                                   lcd.setCursor(0, 1);
                                                   lcd.print("Desea borrar?");
-                                                  if (tecla == '*') {
-                                                    while (1) {
-                                                      char tecla = keypad.getKey();
+                                                }                                                
+                                                else if (tecla == '*') {
+                                                  while (1) {
+                                                    char tecla = keypad.getKey();
+                                                    lcd.clear();
+                                                    lcd.setCursor(0, 0);
+                                                    lcd.print("Esta seguro?");
+                                                    delay(100);
+                                                    if (tecla == '*') {
+                                                      borrarAlarma(9);
+                                                      lcd.setCursor(0, 1);
+                                                      lcd.print("Listo!");
+                                                      delay(1000);
                                                       lcd.clear();
-                                                      lcd.setCursor(0, 0);
-                                                      lcd.print("Esta seguro?");
-                                                      delay(100);
-                                                      if (tecla == '*') {
-                                                        borrarAlarma(9);
-                                                        lcd.setCursor(0, 1);
-                                                        lcd.print("¡Listo!");
-                                                        delay(1000);
-                                                        lcd.clear();
-                                                        break;
-                                                      } else if (tecla == '#') {
-                                                        break;
-                                                      }
+                                                      break;
+                                                    } else if (tecla == '#') {
+                                                      break;
                                                     }
-                                                    break;
-                                                  } else if (tecla == '#') {
-                                                    break;
                                                   }
-                                                  delay(200);
+                                                  break;
+                                                } else if (tecla == '#') {
+                                                  break;
                                                 }
-                                                break;
+                                                delay(200);
+                                              }
+                                              break;
                                         }if(tecla=='#'){
                                             break;
                                           }                                  
@@ -845,11 +970,10 @@ int calculateTimeDifference(int currentHour, int currentMinute, int currentSecon
 void borrarAlarma(int i){
   /*
    solo el parametro de la matris para que todo se vuelva 0 y por ende se elimine el dato
-   */   
-  for(int a=0;a<3;a++){
-    Alarma[i][a]=0;
-  }
-  
+   */
+   for(int a=0;a<3;a++){
+      Alarma[i][a]=-1;
+    }   
 }
 
 void ingresarHoraAlarma(int i) {
@@ -863,12 +987,14 @@ if (Alarma[i][0] > 0) {
   lcd.setCursor(0, 0);
   lcd.print("Ya hay una");
   lcd.setCursor(0, 1);
-  lcd.print("Desea sobreescribir?");
+  lcd.print("Sobreescribir?");
   while (1) {
     char tecla = keypad.getKey();
     if (tecla == '*') {
+      lcd.clear();
       aux(i);
     } else if (tecla == '#') {
+      lcd.clear();
       break;
     }
   }
