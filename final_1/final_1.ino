@@ -39,29 +39,30 @@ void setup() {
   lcd.backlight();//Enciende la luz de fondo
   lcd.setCursor(3,0);
   lcd.print("Bienvenido");
+  
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
     Serial.flush();
     while (1) delay(10);
   }
-
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-
   if (rtc.lostPower()) {
     Serial.println("RTC lost power, let's set the time!");  
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
   }
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   pinMode(Led,OUTPUT); ///Led como salida
   pinMode(Boton,INPUT_PULLUP);//Boton como entrada con una resistencia en pull up
   delay(1000);
   lcd.clear();
-  eeprom_read_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ; //lee el valor de la eeprom y lo almacena en la matris
+  eeprom_read_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ; //lee el valor de la eeprom y lo almacena en la matris  
 }
 
 void loop() { 
    DateTime myRTC = rtc.now();
    eeprom_update_block (( void * ) & Alarma, 20, sizeof ( Alarma )) ;  ///actualiza la matris on los valores, obiamente desordenados   
    bubbleSort();///funcion para ordenar la matris  
-   /*Serial.print("-> ");
+   Serial.print("-> ");
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 3; j++) {        
         Serial.print(alarma2[i][j]);
@@ -76,7 +77,8 @@ void loop() {
         Serial.print("\t");
       }
       Serial.println();
-    }*/
+    }
+    
     if(alarma2[0][0] <= -1){
         lcd.setCursor(0, 1);
         lcd.print("No hay Alarmas");      
@@ -892,8 +894,8 @@ void loop() {
           if(tecla=='#'){break;}
       }
     }    
-    //delay(100);
-    //lcd.clear();
+    delay(100);
+    lcd.clear();
 }
 ////////ordenamiento de burbuja
 void bubbleSort() {
@@ -988,6 +990,7 @@ if (Alarma[i][0] > 0) {
     if (tecla == '*') {
       lcd.clear();
       aux(i);
+      break;
     } else if (tecla == '#') {
       lcd.clear();
       break;
